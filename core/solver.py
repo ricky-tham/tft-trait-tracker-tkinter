@@ -25,7 +25,7 @@ def build_filtered_units(units, trait_thresholds):
         for trait in unit.get('Trait', []):
             trait_to_units[trait].append(unit['Name'])
 
-    activatable_traits = {trait for trait, ulist in trait_to_units.items() if len(ulist) >= trait_thresholds[trait]}
+    activatable_traits = {trait for trait, ulist in trait_to_units.items() if len(ulist) >= trait_thresholds.get(trait, 0)}
 
     filtered_units = []
     for unit in units:
@@ -41,9 +41,9 @@ def compute_potential_active(current_trait_count, remaining_units, trait_thresho
     remaining_count = Counter()
     for unit in remaining_units:
         remaining_count.update(unit["Traits"])
-    current_active = {trait for trait, count in current_trait_count.items() if count >= trait_thresholds[trait]}
+    current_active = {trait for trait, count in current_trait_count.items() if count >= trait_thresholds.get(trait, 0)}
     potential = len(current_active)
-    for trait in trait_thresholds:
+    for trait in trait_thresholds:  
         if trait in current_active:
             continue
         if current_trait_count[trait] + remaining_count[trait] >= trait_thresholds[trait]:
@@ -78,5 +78,5 @@ def find_valid_groups(units, trait_thresholds,
             dfs(current_group, new_count, i+1)
             current_group.pop()
 
-    dfs([], {}, 0)
+    dfs([], Counter(), 0)
     return solutions
